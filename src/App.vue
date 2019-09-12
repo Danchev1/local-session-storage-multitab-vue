@@ -11,11 +11,32 @@
 <script>
 export default {
   name: "App",
-  beforeCreate() {
-    console.log("beforeCreate");
+  created() {
+    window.addEventListener("storage", event => {
+      const credentials = JSON.parse(
+        window.localStorage.getItem("CREDENTIALS_TOKEN")
+      );
+      console.log(credentials);
+      if (event.key === "REQUESTING_SHARED_CREDENTIALS" && credentials) {
+        window.localStorage.setItem(
+          "CREDENTIALS_SHARING",
+          JSON.stringify({ token: "any-token-you-want" })
+        );
+        window.localStorage.removeItem("CREDENTIALS_SHARING");
+      }
+      if (event.key === "CREDENTIALS_SHARING" && !credentials) {
+        window.sessionStorage.setItem("CREDENTIALS_TOKEN", event.newValue);
+      }
+    });
+
+    window.localStorage.setItem(
+      "REQUESTING_SHARED_CREDENTIALS",
+      Date.now().toString()
+    );
+    window.localStorage.removeItem("REQUESTING_SHARED_CREDENTIALS");
   },
   beforeDestroy() {
-    console.log("beforeDestroy");
+    window.removeEventListener("storage", () => {});
   }
 };
 </script>
